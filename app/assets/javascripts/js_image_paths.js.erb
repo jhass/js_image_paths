@@ -1,0 +1,7 @@
+var ImagePaths = (function(images) {
+  return {
+    get: function(name) {
+      return images[name];
+    }
+  };
+})(<%= JsImagePaths::Generator.generate %>);
