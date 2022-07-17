@@ -7,10 +7,16 @@ module JsImagePaths
     end
 
     def self.image_hash
-      images = context.environment.each_logical_path(->(_, path) { path.include? "images" })
-      images.each_with_object({}) do |path, images|
-        images[path] = context.asset_path(path)
+      context.environment.each_file.each_with_object({}) do |path, images|
+        next unless path.start_with?(app_images_path)
+
+        asset = context.environment.find_asset(path)
+        images[asset.logical_path] = context.asset_path(asset.logical_path)
       end
+    end
+
+    def self.app_images_path
+      @app_images_path ||= Rails.root.join('app/assets/images').to_s
     end
   end
 end

@@ -3,15 +3,12 @@ module JsImagePaths
 
     isolate_namespace(JsImagePaths)
 
-    initializer('js_image_paths.compile', after: 'sprockets.environment') do |application|
+    initializer('js_image_paths.compile', after: :engines_blank_point, before: :finisher_hook) do |application|
+      file_type = 'application/javascript'
+      file_type += '+ruby' if Gem::Version.new(::Sprockets::VERSION).segments[0] >= 4
+
       sprockets_env = application.assets || Sprockets
-      sprockets_env.register_preprocessor('application/javascript', :'js_image_path.compile') do |input|
-        context = input[:environment].context_class.new(input)
-        if context.logical_path == 'js_image_paths'
-          JsImagePaths::Generator.context = context
-        end
-        {data: input[:data]}
-      end
+      sprockets_env.register_preprocessor(file_type, JsImagePaths::Processor)
     end
   end
 end
